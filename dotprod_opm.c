@@ -1,3 +1,4 @@
+// Mitchell Graba 20056482 OpenMP dotproduct calculator
 #include <omp.h>
 #include <stdio.h>
 
