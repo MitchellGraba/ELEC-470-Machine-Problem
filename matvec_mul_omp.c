@@ -44,13 +44,14 @@ int main() {
   printf("[");
   // Just the inner loop should be parrallized 
   for (j = 0; j < m; j++) {
-    //printf("Outerloop: I am thread %d\n\n", omp_get_thread_num());
+    printf("Outerloop: I am thread %d\n\n", omp_get_thread_num());
 
     #pragma omp parallel for default(shared) schedule(dynamic) reduction(+ : result[:m])
     for (i = 0; i < n; i++) {
       result[j] += (mat[j][i] * vec[i]);
       printf("Innerloop: I am thread %d, working on row %ld column %ld \n\n", omp_get_thread_num(), j, i);
     }
+    #pragma omp barrier
   }
   for (i = 0; i < m; i++)
     printf("%f,", result[i]);

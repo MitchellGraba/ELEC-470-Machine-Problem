@@ -24,7 +24,7 @@ int main() {
 
   for (i = 0; i < n; i++) {
     result += (a[i] * b[i]);
-    printf("Innerloop: I am thread %d, working at index %ld \n\n", omp_get_thread_num(), i);
+    printf("I am thread %d, working at index %ld \n\n", omp_get_thread_num(), i);
 
   }
   
