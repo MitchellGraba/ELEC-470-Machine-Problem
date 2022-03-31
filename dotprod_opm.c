@@ -4,7 +4,7 @@
 
 int main() {
   int myid;
-  long i, n, chunk;
+  long i, n;
   printf("Vector length = ");
   if (scanf("%ld", &n) < 1) {
     printf("Check input for vector length.\n");
@@ -14,20 +14,18 @@ int main() {
   double a[n], b[n], result;
 
   /* Some initializations */
-  chunk = 10;
   result = 0.0;
   for (i = 0; i < n; i++) {
     a[i] = i;
     b[i] = i;
   }
 
-#pragma omp parallel for default(shared) schedule(static,chunk) reduction(+:result)
+#pragma omp parallel for default(shared) schedule(dynamic) reduction(+:result)
 
   for (i = 0; i < n; i++) {
     result += (a[i] * b[i]);
-    if (omp_get_thread_num() == 0 && i == 0) {
-      printf("Number of threads = %d\n", omp_get_num_threads());
-    }
+    printf("Innerloop: I am thread %d, working at index %ld \n\n", omp_get_thread_num(), i);
+
   }
   
 

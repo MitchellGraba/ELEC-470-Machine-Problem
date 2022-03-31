@@ -42,12 +42,14 @@ int main() {
   }
 
   printf("[");
-// collapse 2 = parallelize two nested
-#pragma omp parallel for default(shared) collapse(2) reduction(+ : result[:m])
-
+  // Just the inner loop should be parrallized 
   for (j = 0; j < m; j++) {
+    //printf("Outerloop: I am thread %d\n\n", omp_get_thread_num());
+
+    #pragma omp parallel for default(shared) schedule(dynamic) reduction(+ : result[:m])
     for (i = 0; i < n; i++) {
       result[j] += (mat[j][i] * vec[i]);
+      printf("Innerloop: I am thread %d, working on row %ld column %ld \n\n", omp_get_thread_num(), j, i);
     }
   }
   for (i = 0; i < m; i++)

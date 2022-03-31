@@ -5,23 +5,22 @@
 #define MAXTHRDS 20
 
 typedef struct {
-  double *my_x;
-  double *my_y;
-  double my_dot_prod;
+  double *x_th;
+  double *y_th;
+  double partial_dot_prod;
   double *global_dot_prod;
   pthread_mutex_t *mutex;
-  int my_vec_len;
+  int vec_len_th; // vector length for a given thread
 } dot_product_t;
 
 void *serial_dot_product(void *arg) {
   dot_product_t *dot_data = arg;
-  int i;
 
-  for (i = 0; i < dot_data->my_vec_len; i++)
-    dot_data->my_dot_prod += dot_data->my_x[i] * dot_data->my_y[i];
+  for (int i = 0; i < dot_data->vec_len_th; i++)
+    dot_data->partial_dot_prod += dot_data->x_th[i] * dot_data->y_th[i];
 
   pthread_mutex_lock(dot_data->mutex);
-  *(dot_data->global_dot_prod) += dot_data->my_dot_prod;
+  *(dot_data->global_dot_prod) += dot_data->partial_dot_prod;
   pthread_mutex_unlock(dot_data->mutex);
   pthread_exit(NULL);
 }
@@ -52,8 +51,8 @@ int main() {
   x = malloc(vec_len * sizeof(double));
   y = malloc(vec_len * sizeof(double));
   for (i = 0; i < vec_len; i++) {
-    x[i] = 0.5 * i;
-    y[i] = 2.0 * i;
+    x[i] = 0.75 * i;
+    y[i] = 2.25 * i;
   }
 
   working_thread = malloc(num_of_thrds * sizeof(pthread_t));
@@ -62,11 +61,11 @@ int main() {
   pthread_mutex_init(mutex_dot_prod, NULL);
 
   for (i = 0; i < num_of_thrds; i++) {
-    thrd_dot_prod_data[i].my_x = x + i * subvec_len;
-    thrd_dot_prod_data[i].my_y = y + i * subvec_len;
+    thrd_dot_prod_data[i].x_th = x + i * subvec_len;
+    thrd_dot_prod_data[i].y_th = y + i * subvec_len;
     thrd_dot_prod_data[i].global_dot_prod = &dot_prod;
     thrd_dot_prod_data[i].mutex = mutex_dot_prod;
-    thrd_dot_prod_data[i].my_vec_len =
+    thrd_dot_prod_data[i].vec_len_th =
         (i == num_of_thrds - 1) ? vec_len - (num_of_thrds - 1) * subvec_len
                                 : subvec_len;
     pthread_create(&working_thread[i], NULL, serial_dot_product,
