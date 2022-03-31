@@ -17,11 +17,11 @@ int main() {
   chunk = 10;
   result = 0.0;
   for (i = 0; i < n; i++) {
-    a[i] = 0.5 * i;
-    b[i] = 2.0 * i;
+    a[i] = i;
+    b[i] = i;
   }
 
-#pragma omp parallel for default(shared) private(i) schedule(static,chunk) reduction(+:result)
+#pragma omp parallel for default(shared) schedule(static,chunk) reduction(+:result)
 
   for (i = 0; i < n; i++) {
     result += (a[i] * b[i]);
