@@ -1,4 +1,5 @@
 // Mitchell Graba 20056482 OpenMP matrix vector multiplication calculator
+// All threads compute their own row no reduction required
 #include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
