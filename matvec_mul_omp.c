@@ -65,6 +65,5 @@ int main()
   }
   for (i = 0; i < m; i++)
     printf("%f,", result[i]);
-
   printf("\b]T\n");
 }
