@@ -1,34 +1,43 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/syscall.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-#define MAXTHRDS 20
+#define MAXTHRDS 64
 
-typedef struct {
-  double *x_th;
-  double *y_th;
-  double partial_dot_prod;
-  double *global_dot_prod;
+typedef struct
+{
+  double *x_th; //memory address of where to start from in vec x
+  double *y_th; // memory address of where to start from in vec y
+  double partial_dot_prod; // variable local to thread holding partial dotprod
+  double *global_dot_prod; // address of result array global to all threads
   pthread_mutex_t *mutex;
   int vec_len_th; // vector length for a given thread
-} dot_product_t;
+} dot_product_thrd;
 
-void *serial_dot_product(void *arg) {
-  dot_product_t *dot_data = arg;
+void *serial_dot_product(void *arg)
+{
+  // pointer to struct that contains the data a thread needs to do work
+  dot_product_thrd *dot_data = arg; 
 
-  for (int i = 0; i < dot_data->vec_len_th; i++)
+  for (int i = 0; i < dot_data->vec_len_th; i++){
     dot_data->partial_dot_prod += dot_data->x_th[i] * dot_data->y_th[i];
+    //printf("Thread %d, working at index %d\n",syscall(__NR_gettid),i);
+  }
 
-  pthread_mutex_lock(dot_data->mutex);
+  pthread_mutex_lock(dot_data->mutex); // beginning of critical section
   *(dot_data->global_dot_prod) += dot_data->partial_dot_prod;
-  pthread_mutex_unlock(dot_data->mutex);
-  pthread_exit(NULL);
+  pthread_mutex_unlock(dot_data->mutex); // end of critical section
+  pthread_exit(NULL); // thread is finished
 }
 
-int main() {
+int main()
+{
   double *x, *y, dot_prod;
   pthread_t *working_thread;
-  dot_product_t *thrd_dot_prod_data;
+  dot_product_thrd *thrd_dot_prod_data;
   void *status;
   pthread_mutex_t *mutex_dot_prod;
   int num_of_thrds;
@@ -37,12 +46,14 @@ int main() {
   int i;
 
   printf("Number of threads = ");
-  if (scanf("%d", &num_of_thrds) < 1 || num_of_thrds > MAXTHRDS) {
+  if (scanf("%d", &num_of_thrds) < 1 || num_of_thrds > MAXTHRDS)
+  {
     printf("Check input for number of processors.\n");
     return -1;
   }
   printf("Vector length = ");
-  if (scanf("%d", &vec_len) < 1) {
+  if (scanf("%d", &vec_len) < 1)
+  {
     printf("Check input for vector length.\n");
     return -1;
   }
@@ -50,17 +61,19 @@ int main() {
 
   x = malloc(vec_len * sizeof(double));
   y = malloc(vec_len * sizeof(double));
-  for (i = 0; i < vec_len; i++) {
-    x[i] = 0.75 * i;
-    y[i] = 2.25 * i;
+  for (i = 0; i < vec_len; i++)
+  {
+    x[i] = i;
+    y[i] = i;
   }
 
   working_thread = malloc(num_of_thrds * sizeof(pthread_t));
-  thrd_dot_prod_data = malloc(num_of_thrds * sizeof(dot_product_t));
+  thrd_dot_prod_data = malloc(num_of_thrds * sizeof(dot_product_thrd));
   mutex_dot_prod = malloc(sizeof(pthread_mutex_t));
   pthread_mutex_init(mutex_dot_prod, NULL);
 
-  for (i = 0; i < num_of_thrds; i++) {
+  for (i = 0; i < num_of_thrds; i++)
+  {
     thrd_dot_prod_data[i].x_th = x + i * subvec_len;
     thrd_dot_prod_data[i].y_th = y + i * subvec_len;
     thrd_dot_prod_data[i].global_dot_prod = &dot_prod;
@@ -70,6 +83,7 @@ int main() {
                                 : subvec_len;
     pthread_create(&working_thread[i], NULL, serial_dot_product,
                    (void *)&thrd_dot_prod_data[i]);
+    printf("Thread %d dispatched working from %p to %p\n", i, x + i * subvec_len, (x + i * subvec_len) + thrd_dot_prod_data[i].vec_len_th - 1);
   }
   for (i = 0; i < num_of_thrds; i++)
     pthread_join(working_thread[i], &status);

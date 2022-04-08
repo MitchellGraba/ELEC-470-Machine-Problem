@@ -6,20 +6,25 @@
 
 int main()
 {
-  int myid;
-  long i, j, m, n, chunk;
+  int myid, t, i, j, m, n;
+
+  printf("How many threads?: ");
+  if (scanf("%d", &t) < 1)
+  {
+    return -1;
+  }
 
   printf("How many rows?: ");
-  if (scanf("%ld", &m) < 1)
+  if (scanf("%d", &m) < 1)
   {
-    printf("Check input for vector length.\n");
+    printf("Check input for row length.\n");
     return -1;
   }
 
   printf("How many columns?: ");
-  if (scanf("%ld", &n) < 1)
+  if (scanf("%d", &n) < 1)
   {
-    printf("Check input for vector length.\n");
+    printf("Check input for column length.\n");
     return -1;
   }
 
@@ -34,8 +39,6 @@ int main()
   double result[m];
 
   /* Some initializations */
-  chunk = 10;
-
   for (i = 0; i < m; i++)
   {
     result[i] = 0.0;
@@ -45,18 +48,19 @@ int main()
   {
     for (j = 0; j < m; j++)
     {
-      mat[j][i] = (float)(1.0); //(float)j / (i + 1);
+      mat[j][i] = (float)(1.0);
     }
   }
 
+  omp_set_num_threads(t);
 #pragma omp parallel for default(shared) schedule(dynamic) private(i) // each thread gets it's own private i
   for (j = 0; j < m; j++)
   {
-    printf("Outerloop: I am thread %d\n\n", omp_get_thread_num());
+    printf("Outerloop: Thread %d\n\n", omp_get_thread_num());
     for (i = 0; i < n; i++)
     {
       result[j] += (mat[j][i] * vec[i]); // no reduction necessary
-      printf("Innerloop: I am thread %d, working on row %ld column %ld \n\n", omp_get_thread_num(), j, i);
+      printf("Innerloop: Thread %d, working on row %d column %d \n\n", omp_get_thread_num(), j, i);
     }
   }
 
