@@ -23,15 +23,15 @@ int main()
     return -1;
   }
 
-  long double *a = (long double*)malloc((sizeof(long double) * n));
-  long double *b = (long double*)malloc((sizeof(long double) * n));
-  long double result = 0.0;
+  double *a = (double*)malloc((sizeof(double) * n));
+  double *b = (double*)malloc((sizeof(double) * n));
+  double result = 0.0;
 
   /* Some initializations */
   for (i = 0; i < n; i++)
   {
-    a[i] = i;
-    b[i] = i;
+    a[i] = i%100;
+    b[i] = i%100;
   }
 
   omp_set_num_threads(t);
@@ -47,6 +47,6 @@ int main()
 #pragma omp barrier
 
   t2 = omp_get_wtime();
-  printf("Dot product= %Lf\n", result);
+  printf("Dot product= %f\n", result);
   printf("Program Executed in %fms\n", (t2-t1)*1000.0);
 }

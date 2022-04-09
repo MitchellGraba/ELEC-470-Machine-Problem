@@ -10,10 +10,10 @@
 
 typedef struct
 {
-  long double *x_th;            // memory address of where to start from in vec x
-  long double *y_th;            // memory address of where to start from in vec y
-  long double partial_dot_prod; // variable local to thread holding partial dotprod
-  long double *global_dot_prod; // address of result array global to all threads
+  double *x_th;            // memory address of where to start from in vec x
+  double *y_th;            // memory address of where to start from in vec y
+  double partial_dot_prod; // variable local to thread holding partial dotprod
+  double *global_dot_prod; // address of result array global to all threads
   pthread_mutex_t *mutex;
   int vec_len_th; // vector length for a given thread
 } dot_product_thrd;
@@ -40,7 +40,7 @@ void *serial_dot_product(void *arg)
 int main()
 {
 
-  long double *x, *y, dot_prod;
+  double *x, *y, dot_prod;
   pthread_t *working_thread;
   dot_product_thrd *thrd_dot_prod_data;
   void *status;
@@ -66,12 +66,12 @@ int main()
 
   dot_prod = 0.0;
 
-  x = malloc(vec_len * sizeof(long double));
-  y = malloc(vec_len * sizeof(long double));
+  x = malloc(vec_len * sizeof(double));
+  y = malloc(vec_len * sizeof(double));
   for (i = 0; i < vec_len; i++)
   {
-    x[i] = i;
-    y[i] = i;
+    x[i] = i%100;
+    y[i] = i%100;
   }
 
   working_thread = malloc(num_of_thrds * sizeof(pthread_t));
@@ -96,7 +96,7 @@ int main()
   for (i = 0; i < num_of_thrds; i++)
     pthread_join(working_thread[i], &status);
   clock_t t2 = clock();
-  printf("Dot product = %Lf\n", dot_prod);
+  printf("Dot product = %f\n", dot_prod);
   printf("Executed in %fms\n", 1000.0 * (double)(t2 - t1) / CLOCKS_PER_SEC);
 
   free(x);

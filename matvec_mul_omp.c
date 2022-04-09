@@ -5,6 +5,26 @@
 #include <stdlib.h>
 
 #define PRINT 0
+#define VALIDATE 0
+
+// validates result with single threaded procedural computation of multiplication
+int validate(int m, int n, double **mat, double *vec, double *res)
+{
+  double *t = (double *)malloc(sizeof(double));
+  for (int j = 0; j < m; j++)
+  {
+    for (int i = 0; i < n; i++)
+    {
+      t[j] += (mat[j][i] * vec[i]);
+    }
+    if (t[j] != res[j])
+    {
+      printf("results incorrect\n");
+      return -1;
+    }
+  }
+  return 1;
+}
 
 int main()
 {
@@ -36,7 +56,7 @@ int main()
 
   double vec[n];
   for (i = 0; i < n; i++)
-    vec[i] = i;
+    vec[i] = i % 100;
 
   double result[m];
 
@@ -85,6 +105,9 @@ int main()
     printf("%f,", result[i]);
   }
   printf("\b]T\n");
+#endif
+#if VALIDATE
+  validate(m, n, mat, vec, result);
 #endif
   printf("Program Executed in %fms\n", (elapsed)*1000.0);
 }
