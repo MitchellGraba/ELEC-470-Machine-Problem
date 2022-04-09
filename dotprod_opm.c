@@ -23,15 +23,15 @@ int main()
     return -1;
   }
 
-  double *a = (double*)malloc((sizeof(double) * n));
-  double *b = (double*)malloc((sizeof(double) * n));
+  double *x = (double*)malloc((sizeof(double) * n));
+  double *y = (double*)malloc((sizeof(double) * n));
   double result = 0.0;
 
   /* Some initializations */
   for (i = 0; i < n; i++)
   {
-    a[i] = i%100;
-    b[i] = i%100;
+    x[i] = i%100;
+    y[i] = i%100;
   }
 
   omp_set_num_threads(t);
@@ -41,7 +41,7 @@ int main()
 
   for (i = 0; i < n; i++)
   {
-    result += (a[i] * b[i]);
+    result += (x[i] * y[i]);
     //printf("Thread %d, working at index %d \n\n", omp_get_thread_num(), i);
   }
 #pragma omp barrier

@@ -1,11 +1,11 @@
 // Mitchell Graba 20056482 OpenMP matrix vector multiplication calculator
-// All threads compute their own row no reduction required
+// This implements both methods of parallelization
 #include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #define MAXTHRDS 64
-#define PRINT 0
+#define PRINT 1
 #define VALIDATE 1
 
 // validates result with single threaded procedural computaion of multiplication

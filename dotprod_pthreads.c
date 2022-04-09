@@ -2,11 +2,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/syscall.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <time.h>
+#include <inttypes.h>
+#include <math.h>
 
 #define MAXTHRDS 64
+
+long double print_current_time_with_ms (void)
+{
+    long double   ms; // Milliseconds
+    long          s;  // Seconds
+    struct timespec spec;
+
+    clock_gettime(CLOCK_REALTIME, &spec);
+
+    s  = spec.tv_sec;
+    ms = spec.tv_nsec / 1.0e6; // Convert nanoseconds to milliseconds
+    
+
+    //printf("Current time: %"PRIdMAX".%03ld seconds since the Epoch\n", (intmax_t)(s, ms));
+    printf("%Lf\n",1000.0 * s + ms);
+    return (1000.0 * s + ms);
+}
 
 typedef struct
 {
@@ -20,6 +39,7 @@ typedef struct
 
 void *serial_dot_product(void *arg)
 {
+  long double t1, t2;
   // pointer to struct that contains the data a thread needs to do work
   dot_product_thrd *dot_data = arg;
 
@@ -28,12 +48,12 @@ void *serial_dot_product(void *arg)
     dot_data->partial_dot_prod += dot_data->x_th[i] * dot_data->y_th[i];
     // printf("Thread %d, working at index %d\n",syscall(__NR_gettid),i);
   }
-  clock_t t1 = clock();
+  t1 = print_current_time_with_ms();
   pthread_mutex_lock(dot_data->mutex); // beginning of critical section
   *(dot_data->global_dot_prod) += dot_data->partial_dot_prod;
   pthread_mutex_unlock(dot_data->mutex); // end of critical section
-  clock_t t2 = clock();
-  printf("Thread %d critical section executed in %fms\n", syscall(__NR_gettid), 1000.0 * (double)(t2 - t1) / CLOCKS_PER_SEC);
+  t2 = print_current_time_with_ms();
+  printf("Thread %d critical section executed in %Lfms\n", syscall(__NR_gettid),(t2 - t1));
   pthread_exit(NULL); // thread is finished
 }
 
@@ -49,6 +69,8 @@ int main()
   int vec_len;
   int subvec_len;
   int i;
+  long double t1, t2;
+
 
   printf("Number of threads = ");
   if (scanf("%d", &num_of_thrds) < 1 || num_of_thrds > MAXTHRDS)
@@ -79,7 +101,7 @@ int main()
   mutex_dot_prod = malloc(sizeof(pthread_mutex_t));
   pthread_mutex_init(mutex_dot_prod, NULL);
 
-  clock_t t1 = clock();
+  t1 = print_current_time_with_ms();
   for (i = 0; i < num_of_thrds; i++)
   {
     thrd_dot_prod_data[i].x_th = x + i * subvec_len;
@@ -95,9 +117,9 @@ int main()
   }
   for (i = 0; i < num_of_thrds; i++)
     pthread_join(working_thread[i], &status);
-  clock_t t2 = clock();
+  t2 = print_current_time_with_ms();
   printf("Dot product = %f\n", dot_prod);
-  printf("Executed in %fms\n", 1000.0 * (double)(t2 - t1) / CLOCKS_PER_SEC);
+  printf("Executed in %Lfms\n", (t2 - t1));
 
   free(x);
   free(y);

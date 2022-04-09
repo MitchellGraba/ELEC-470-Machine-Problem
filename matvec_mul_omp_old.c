@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define PRINT 0
-#define VALIDATE 0
+#define PRINT 1
+#define VALIDATE 1
 
 // validates result with single threaded procedural computation of multiplication
 int validate(int m, int n, double **mat, double *vec, double *res)
@@ -55,7 +55,7 @@ void init(int m, int n, double **mat, double *vec, double *res)
 int main()
 {
   int myid, t, i, j, m, n, chunksize;
-  double t1, t2, elapsed = 0.0;
+  double red, t1, t2, elapsed = 0.0;
 
   printf("How many threads?: ");
   if (scanf("%d", &t) < 1)
@@ -83,6 +83,7 @@ int main()
   init(m, n, mat, vec, result);
 
   chunksize = m / t;
+  red = 0.0;
 
   omp_set_num_threads(t);
 #if PRINT
@@ -93,16 +94,17 @@ int main()
   {
     // printf("Outerloop: Thread %d\n\n", omp_get_thread_num());
     t1 = omp_get_wtime();
-#pragma omp parallel for default(shared) schedule(dynamic, chunksize) reduction(+ \
-                                                                                : result[:m])
+#pragma omp parallel for default(shared) schedule(dynamic, chunksize) reduction(+: red)
     for (i = 0; i < n; i++)
     {
-      result[j] += (mat[j][i] * vec[i]);
+      red += (mat[j][i] * vec[i]);
 #if PRINT
       printf("Innerloop: Thread %d, working on row %d column %d \n\n", omp_get_thread_num(), j, i);
 #endif
     }
 #pragma omp barrier
+    result[j] = red;
+    red = 0.0;
     t2 = omp_get_wtime();
     elapsed += t2 - t1;
   }
