@@ -1,4 +1,4 @@
 #!/bin/sh
 
-gcc -lpthread -lm -o dotprod_pthreads dotprod_pthreads.c 
+gcc -lpthread -o dotprod_pthreads dotprod_pthreads.c 
 
