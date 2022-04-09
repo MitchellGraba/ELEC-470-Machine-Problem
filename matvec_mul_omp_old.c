@@ -26,6 +26,32 @@ int validate(int m, int n, double **mat, double *vec, double *res)
   return 1;
 }
 
+void init(int m, int n, double **mat, double *vec, double *res)
+{
+  int i, j;
+
+  for (i = 0; i < n; i++)
+    mat[i] = (double *)malloc(n * sizeof(double));
+
+  for (i = 0; i < n; i++)
+    vec[i] = i % 100;
+
+  /* Some initializations */
+
+  for (i = 0; i < m; i++)
+  {
+    res[i] = 0.0;
+  }
+
+  for (i = 0; i < n; i++)
+  {
+    for (j = 0; j < m; j++)
+    {
+      mat[j][i] = (float)(1.0);
+    }
+  }
+}
+
 int main()
 {
   int myid, t, i, j, m, n, chunksize;
@@ -51,29 +77,10 @@ int main()
   }
 
   double **mat = (double **)malloc((m) * sizeof(double));
-  for (i = 0; i < n; i++)
-    mat[i] = (double *)malloc(n * sizeof(double));
+  double *vec = (double *)malloc((n) * sizeof(double));
+  double *result = (double *)malloc((m) * sizeof(double));
 
-  double vec[n];
-  for (i = 0; i < n; i++)
-    vec[i] = i % 100;
-
-  double result[m];
-
-  /* Some initializations */
-
-  for (i = 0; i < m; i++)
-  {
-    result[i] = 0.0;
-  }
-
-  for (i = 0; i < n; i++)
-  {
-    for (j = 0; j < m; j++)
-    {
-      mat[j][i] = (float)(1.0);
-    }
-  }
+  init(m, n, mat, vec, result);
 
   chunksize = m / t;
 
