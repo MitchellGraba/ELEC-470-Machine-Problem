@@ -60,14 +60,14 @@ void *serial_dot_product(void *arg)
   for (int i = 0; i < dot_data->vec_len_th; i++)
   {
     dot_data->partial_dot_prod += dot_data->x_th[i] * dot_data->y_th[i];
-    printf("Thread %d, working at index %d\n",syscall(__NR_gettid),i);
+    //printf("Thread %d, working at index %d\n",syscall(__NR_gettid),i);
   }
   t1 = current_time_ms();
   pthread_mutex_lock(dot_data->mutex); // beginning of critical section
   *(dot_data->global_dot_prod) += dot_data->partial_dot_prod;
   pthread_mutex_unlock(dot_data->mutex); // end of critical section
   t2 = current_time_ms();
-  printf("Thread %d critical section executed in %Lfms\n", syscall(__NR_gettid), (t2 - t1));
+  //printf("Thread %d critical section executed in %Lfms\n", syscall(__NR_gettid), (t2 - t1));
   pthread_exit(NULL); // thread is finished
 }
 

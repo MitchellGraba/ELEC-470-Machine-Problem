@@ -22,7 +22,6 @@ int validate(int len, double *x, double *y, double res)
   return 1;
 }
 
-
 int main()
 {
   int myid, t, i, vec_len, chunksize;
@@ -41,31 +40,31 @@ int main()
     return -1;
   }
 
-  double *x = (double*)malloc((sizeof(double) * vec_len));
-  double *y = (double*)malloc((sizeof(double) * vec_len));
+  double *x = (double *)malloc((sizeof(double) * vec_len));
+  double *y = (double *)malloc((sizeof(double) * vec_len));
   double dot_prod = 0.0;
 
   /* Some initializations */
   for (i = 0; i < vec_len; i++)
   {
-    x[i] = i%100;
-    y[i] = i%100;
+    x[i] = i % 100;
+    y[i] = i % 100;
   }
-  chunksize = ((vec_len/t) > 1) ? vec_len/t : 1;
+  //chunksize = ((vec_len / t) > 1) ? vec_len / t : 1;
   omp_set_num_threads(t);
   t1 = omp_get_wtime();
-#pragma omp parallel for default(shared) schedule(dynamic, chunksize) reduction(+ \
-                                                                     : dot_prod)
+#pragma omp parallel for default(shared) schedule(dynamic, ((vec_len / t) > 1) ? vec_len / t : 1) reduction(+ \
+                                                                                                             : dot_prod)
 
   for (i = 0; i < vec_len; i++)
   {
     dot_prod += (x[i] * y[i]);
-    printf("Thread %d, working at index %d \n\n", omp_get_thread_num(), i);
+    //printf("Thread %d, working at index %d \n\n", omp_get_thread_num(), i);
   }
 #pragma omp barrier
 
   t2 = omp_get_wtime();
-  printf("Dot product= %f\n", dot_prod);
-  printf("Program Executed in %fms\n", (t2-t1)*1000.0);
-  validate(vec_len,x,y,dot_prod);
+  printf("Dot product= %Lf\n", dot_prod);
+  printf("Program Executed in %fms\n", (t2 - t1) * 1000.0);
+  validate(vec_len, x, y, dot_prod);
 }
