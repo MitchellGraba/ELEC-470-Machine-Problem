@@ -5,20 +5,20 @@
 #include <stdlib.h>
 
 #define MAXTHRDS 64
-#define PRINT 1
-#define VALIDATE 0
+#define PRINT 0
+#define VALIDATE 1
 
 // validates result with single threaded procedural computaion of multiplication
 int validate(int m, int n, double **mat, double *vec, double *res)
 {
-  double *t = (double *)malloc(sizeof(double));
+  double *temp = (double *)malloc(m * sizeof(double));
   for (int j = 0; j < m; j++)
   {
     for (int i = 0; i < n; i++)
     {
-      t[j] += (mat[j][i] * vec[i]);
+      temp[j] += (mat[j][i] * vec[i]);
     }
-    if (t[j] != res[j])
+    if (temp[j] != res[j])
     {
       fprintf(stderr, "results incorrect\n");
       return -1;
