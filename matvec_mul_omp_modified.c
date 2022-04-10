@@ -105,7 +105,7 @@ int setParams(int *meth, int *t, int *m, int *n, int argc, char *argv[])
 void matvec_mul1(int chunksize, int m, int n, double **mat, double *vec, double *res)
 {
   int i, j;
-  double t1, t2, elapsed = 0.0;
+  double red, t1, t2, elapsed = 0.0;
 
   //  Just the inner loop should be parallelized
   for (j = 0; j < m; j++)
@@ -113,17 +113,18 @@ void matvec_mul1(int chunksize, int m, int n, double **mat, double *vec, double 
 #if PRINT
     printf("Outerloop: Thread %d\n\n", omp_get_thread_num());
 #endif
+    red = 0.0;
     t1 = omp_get_wtime();
 #pragma omp parallel for default(shared) schedule(dynamic, chunksize) reduction(+ \
-                                                                                : res[:m])
+                                                                                : red)
     for (i = 0; i < n; i++)
     {
-      res[j] += (mat[j][i] * vec[i]);
+      red += (mat[j][i] * vec[i]);
 #if PRINT
       printf("Innerloop: Thread %d, working on row %d column %d \n\n", omp_get_thread_num(), j, i);
 #endif
     }
-
+    res[j] = red;
     t2 = omp_get_wtime();
     elapsed += t2 - t1;
   }

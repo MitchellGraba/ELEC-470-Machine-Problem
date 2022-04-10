@@ -3,11 +3,9 @@
 #include <stdlib.h>
 #include <sys/syscall.h>
 #include <sys/time.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <inttypes.h>
 
 #define MAXTHRDS 64
+#define PRINT 0
 
 int validate(int len, double *x, double *y, double res)
 {
@@ -28,17 +26,11 @@ int validate(int len, double *x, double *y, double res)
 
 long double current_time_ms(void)
 {
-  long double ms; // Milliseconds
-  long s;         // Seconds
   struct timespec spec;
 
   clock_gettime(CLOCK_REALTIME, &spec);
 
-  s = spec.tv_sec;
-  ms = spec.tv_nsec / 1.0e6; // Convert nanoseconds to milliseconds
-
-  // printf("Current time: %"PRIdMAX".%03ld seconds since the Epoch\n", (intmax_t)(s, ms));
-  return (1000.0 * s + ms);
+  return (1000.0 * spec.tv_sec + (spec.tv_nsec / 1.0e6));
 }
 
 typedef struct
@@ -60,14 +52,19 @@ void *serial_dot_product(void *arg)
   for (int i = 0; i < dot_data->vec_len_th; i++)
   {
     dot_data->partial_dot_prod += dot_data->x_th[i] * dot_data->y_th[i];
-    //printf("Thread %d, working at index %d\n",syscall(__NR_gettid),i);
+#if PRINT
+    printf("Thread %d, working at index %d\n", syscall(__NR_gettid), i);
+#endif
   }
   t1 = current_time_ms();
   pthread_mutex_lock(dot_data->mutex); // beginning of critical section
   *(dot_data->global_dot_prod) += dot_data->partial_dot_prod;
   pthread_mutex_unlock(dot_data->mutex); // end of critical section
   t2 = current_time_ms();
-  //printf("Thread %d critical section executed in %Lfms\n", syscall(__NR_gettid), (t2 - t1));
+#if PRINT
+  printf("Thread %d critical section executed in %Lfms\n", syscall(__NR_gettid), (t2 - t1));
+#endif
+
   pthread_exit(NULL); // thread is finished
 }
 
@@ -126,7 +123,9 @@ int main()
                                 : subvec_len;
     pthread_create(&working_thread[i], NULL, serial_dot_product,
                    (void *)&thrd_dot_prod_data[i]);
-    // printf("Thread %d dispatched working from %p to %p\n", i, x + i * subvec_len, (x + i * subvec_len) + thrd_dot_prod_data[i].vec_len_th - 1);
+#if PRINT
+    printf("Thread %d dispatched working from %p to %p\n", i, x + i * subvec_len, (x + i * subvec_len) + thrd_dot_prod_data[i].vec_len_th - 1);
+#endif
   }
   for (i = 0; i < num_of_thrds; i++)
     pthread_join(working_thread[i], &status);
