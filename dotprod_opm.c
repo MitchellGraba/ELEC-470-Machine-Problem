@@ -50,21 +50,21 @@ int main()
     x[i] = i % 100;
     y[i] = i % 100;
   }
-  //chunksize = ((vec_len / t) > 1) ? vec_len / t : 1;
+
   omp_set_num_threads(t);
   t1 = omp_get_wtime();
 #pragma omp parallel for default(shared) schedule(dynamic, ((vec_len / t) > 1) ? vec_len / t : 1) reduction(+ \
-                                                                                                             : dot_prod)
+                                                                                                            : dot_prod)
 
   for (i = 0; i < vec_len; i++)
   {
     dot_prod += (x[i] * y[i]);
-    //printf("Thread %d, working at index %d \n\n", omp_get_thread_num(), i);
+    // printf("Thread %d, working at index %d \n\n", omp_get_thread_num(), i);
   }
 #pragma omp barrier
 
   t2 = omp_get_wtime();
-  printf("Dot product= %Lf\n", dot_prod);
+  printf("Dot product= %f\n", dot_prod);
   printf("Program Executed in %fms\n", (t2 - t1) * 1000.0);
   validate(vec_len, x, y, dot_prod);
 }
