@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 #define MAXTHRDS 64
-#define PRINT 0
+#define PRINT 1
 #define VALIDATE 1
 
 // validates result with single threaded procedural computaion of multiplication
@@ -33,24 +33,24 @@ void init(int m, int n, double **mat, double *vec, double *res)
 {
   int i, j;
 
-  for (i = 0; i < n; i++)
-    mat[i] = (double *)malloc(n * sizeof(double));
+  for (i = 0; i < m; i++)
+    mat[i] = (double *)malloc(n * sizeof(double*));
 
   for (i = 0; i < n; i++)
     vec[i] = i % 100;
 
   /* Some initializations */
 
-  for (i = 0; i < m; i++)
+  for (j = 0; j < m; j++)
   {
     res[i] = 0.0;
   }
 
-  for (i = 0; i < n; i++)
+  for (j = 0; j < m; j++)
   {
-    for (j = 0; j < m; j++)
+    for (i = 0; i < n; i++)
     {
-      mat[j][i] = (float)(1.0);
+      mat[j][i] = 1.0;
     }
   }
 }
@@ -62,7 +62,7 @@ int setParams(int *meth, int *t, int *m, int *n, int argc, char *argv[])
     *meth = strtol(argv[1], (char **)NULL, 10);
     *t = strtol(argv[2], (char **)NULL, 10);
     *m = strtol(argv[3], (char **)NULL, 10);
-    *n = strtol(argv[3], (char **)NULL, 10);
+    *n = strtol(argv[4], (char **)NULL, 10);
 
     printf("TESTING:\tMethod: %d\t%d Threads\tm=%d\tn=%d\n", *meth, *t, *m, *n);
     if (*t > MAXTHRDS || *m > __INT_MAX__ || *n > __INT_MAX__ || !(*meth == 1 || *meth == 2))
@@ -176,8 +176,10 @@ int main(int argc, char *argv[])
   else if (meth == 2)
   {
     matvec_mul2(m, n, mat, vec, result);
-  } else {
-     exit(0);
+  }
+  else
+  {
+    exit(0);
   }
 
 #if PRINT
