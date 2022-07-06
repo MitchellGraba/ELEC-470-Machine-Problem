@@ -10,17 +10,17 @@ using namespace std;
 int main(int argc, char *argv[]);
 void timestamp();
 
-//****************************************************************************80
+//****************************************************************************
 
 int main(int argc, char *argv[])
 
-//****************************************************************************80
+//****************************************************************************
 //
 //  Purpose:
 //
 //    MAIN is the main program for MATVEC.
 //
-//  Discussion:
+
 //
 //    MATVEC uses MPI to compute a matrix-vector product b = A * x.
 //
