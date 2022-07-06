@@ -34,33 +34,6 @@ int main(int argc, char *argv[])
 //    controlled.  The master process allocates A and x, but the worker
 //    processes only allocate enough memory for one row of A, and x.
 //
-//  Licensing:
-//
-//    This code is distributed under the GNU LGPL license.
-//
-//  Modified:
-//
-//    16 June 2016
-//
-//  Author:
-//
-//    John Burkardt
-//
-//  Reference:
-//
-//    William Gropp, Ewing Lusk, Anthony Skjellum,
-//    Using MPI: Portable Parallel Programming with the
-//    Message-Passing Interface,
-//    Second Edition,
-//    MIT Press, 1999,
-//    ISBN: 0262571323.
-//
-//    Snir, Otto, Huss-Lederman, Walker, Dongarra,
-//    MPI - The Complete Reference,
-//    Volume 1, The MPI Core,
-//    second edition,
-//    MIT Press, 1998.
-//
 {
   double *a;
   double *a_row;
@@ -326,32 +299,6 @@ int main(int argc, char *argv[])
 
 void timestamp()
 
-//****************************************************************************80
-//
-//  Purpose:
-//
-//    TIMESTAMP prints the current YMDHMS date as a time stamp.
-//
-//  Example:
-//
-//    31 May 2001 09:45:54 AM
-//
-//  Licensing:
-//
-//    This code is distributed under the GNU LGPL license.
-//
-//  Modified:
-//
-//    08 July 2009
-//
-//  Author:
-//
-//    John Burkardt
-//
-//  Parameters:
-//
-//    None
-//
 {
 #define TIME_SIZE 40
 
